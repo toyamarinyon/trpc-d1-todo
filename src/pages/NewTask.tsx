@@ -3,6 +3,7 @@ import { useRouter } from "@raula/router";
 import { FormEvent, useCallback, useState } from "react";
 import { Loader } from "../components/Loader";
 import { useToast } from "../components/Toast";
+import { tasks } from "../db/task";
 
 const sleep = (ms = 1000) => new Promise((resolve) => setTimeout(resolve, ms));
 
@@ -15,9 +16,13 @@ export const NewTaskPage = (): JSX.Element => {
       event.preventDefault();
       setLoading(true);
       const data = Object.fromEntries(new FormData(event.currentTarget));
-      console.log(data);
       await sleep();
-      toast("message!");
+      tasks.push({
+        id: tasks.length + 1,
+        title: data.title as string,
+        description: data.description as string,
+      });
+      toast("Create successfully!");
       setLoading(false);
       router.push("/");
     },

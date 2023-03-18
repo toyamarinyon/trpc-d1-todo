@@ -1,4 +1,5 @@
 import { initTRPC } from "@trpc/server";
+import tRPCPagesPluginFunction from "cloudflare-pages-plugin-trpc";
 import { z } from "zod";
 
 // mock db
@@ -48,3 +49,8 @@ const appRouter = t.router({
 })
 
 export type AppRouter = typeof appRouter
+
+export const onRequest: PagesFunction = tRPCPagesPluginFunction({
+  router: appRouter,
+  endpoint: '/api/trpc'
+})

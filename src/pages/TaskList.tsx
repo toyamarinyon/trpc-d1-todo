@@ -4,9 +4,11 @@ import { PlusIcon } from "@radix-ui/react-icons";
 import { tasks as mockTasks } from "../db/task";
 import { useCallback, useState } from "react";
 import { useToast } from "../components/Toast";
+import { trpc } from "../utils/trpc";
 
 export const TaskList = (): JSX.Element => {
   const [tasks, setTasks] = useState<typeof mockTasks>(mockTasks);
+  const { data } = trpc.tasks.list.useQuery()
   const toast = useToast();
   const handleTaskClick = useCallback(
     (clickTaskId: number) => () => {
@@ -19,7 +21,7 @@ export const TaskList = (): JSX.Element => {
     <main>
       <h1 className="text-2xl text-neutral-200 font-bold mb-8">Task list</h1>
       <ul className="divide-y divide-whiteA9 border-b border-whiteA9 mb-4">
-        {tasks.map(({ id, title, description }) => (
+        {data?.tasks.map(({ id, title, description }) => (
           <li key={id}>
             <Task
               title={title}

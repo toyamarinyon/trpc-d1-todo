@@ -19,7 +19,8 @@ This Todo App is a project demonstrating the creation of an end-to-end type-safe
 1. Create a repository from this template repository using the GitHub CLI
 
     ```bash
-    gh repo create yapc-kyoto-2023-demo --template toyamarinyon/trpc-d1-todo
+    gh repo create yapc-kyoto-2023-demo --clone --public --template toyamarinyon/trpc-d1-todo
+    cd yapc-kyoto-2023-demo
     ```
 
 1. Instal dependencies
@@ -51,7 +52,7 @@ This Todo App is a project demonstrating the creation of an end-to-end type-safe
 
     Set your binding name by updating the <BINDING_NAME> value. Your binding is available in your Cloudflare Pages Functions at env.<BINDING_NAME>. You will find the values for database_name and database_id in your terminal after you run the create command in step 3.
 
-1. Run a query against your D1 database
+1. Run a query against your local database
 
     You can create our database with [schema.sql](./schema.sql):
     ```sql
@@ -92,4 +93,17 @@ This Todo App is a project demonstrating the creation of an end-to-end type-safe
 1. Select **Create a project** > **Connect to Git**.
 1. Select your new GitHub repository.
 1. In the **Set up builds and deployments**, set `npm run build` as the **Build command**, and `dist` as the **Build output directory**.
-1. Select **Environment variables (advanced)** > **+ Add variable** > configure a `NODE_VERSION` variable with a value of any version of Node greater than `14.18` -- this example uses `16`:
+1. Select **Environment variables (advanced)** > **+ Add variable** > configure a `NODE_VERSION` variable with `17`.
+1. The deployment will succeed, but database binding is not yet, so setting it is.
+
+    1. Show **Settings** tab.
+    1. Select **Functions** menu.
+    1. Select **D1 database bindings** > **Add binding** > configure a `DB` variable with a value of `<DATABASE_NAME>`
+
+1. Redeploy the latest deployment to apply the above settings.
+1. Run a query against your D1 database
+
+    You've run a query againt your local database on `Getting Started` setion. Let's run the same query against your D1 database:
+    ```bash
+    npx wrangler d1 execute <DATABASE_NAME> --file=./schema.sql
+    ```

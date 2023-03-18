@@ -33,7 +33,7 @@ export const TaskList = (): JSX.Element => {
       {isInitialLoading ? <p className="text-neutral-200 mb-4">Loading...</p> :
         (
           <ul className="divide-y divide-whiteA9 border-b border-whiteA9 mb-4">
-            {data?.tasks.map(({ id, title, description }) => (
+            {data?.tasks?.map(({ id, title, description }) => (
               <li key={id} className={completeTaskIds.includes(id) ? 'hidden' : ''}>
                 <Task
                   title={title}

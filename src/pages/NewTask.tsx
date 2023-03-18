@@ -1,29 +1,28 @@
 import * as Form from "@radix-ui/react-form";
 import { useRouter } from "@raula/router";
+import { useQueryClient } from "@tanstack/react-query";
+import { getQueryKey } from "@trpc/react-query"
 import { FormEvent, useCallback, useState } from "react";
 import { Loader } from "../components/Loader";
 import { useToast } from "../components/Toast";
-import { tasks } from "../db/task";
-
-const sleep = (ms = 1000) => new Promise((resolve) => setTimeout(resolve, ms));
+import { trpc } from "../utils/trpc";
 
 export const NewTaskPage = (): JSX.Element => {
   const toast = useToast();
   const { router } = useRouter();
-  const [loading, setLoading] = useState(false);
+  const createTask = trpc.tasks.create.useMutation()
+  const queryClient = useQueryClient()
   const handleSubmit = useCallback(
     async (event: FormEvent<HTMLFormElement>) => {
       event.preventDefault();
-      setLoading(true);
       const data = Object.fromEntries(new FormData(event.currentTarget));
-      await sleep();
-      tasks.push({
-        id: tasks.length + 1,
+      await createTask.mutateAsync({
         title: data.title as string,
-        description: data.description as string,
-      });
+        description: data.description as string
+      })
+      await queryClient.invalidateQueries(getQueryKey(trpc.tasks))
+
       toast("Create successfully!");
-      setLoading(false);
       router.push("/");
     },
     [router, toast]
@@ -78,9 +77,9 @@ export const NewTaskPage = (): JSX.Element => {
         <Form.Submit asChild>
           <button
             className="box-border text-white justify-center rounded bg-plum11 hover:bg-plum10 leading-none py-2 px-4 text-sm shadow-[0_2px_10px] shadow-whiteA8 flex items-center disabled:cursor-not-allowed disabled:opacity-50"
-            disabled={loading}
+            disabled={createTask.isLoading}
           >
-            {loading && <Loader />}
+            {createTask.isLoading && <Loader />}
             Create Task
           </button>
         </Form.Submit>

@@ -4,9 +4,9 @@ import tRPCPagesPluginFunction, {
 } from "cloudflare-pages-plugin-trpc";
 import { z } from "zod";
 
-// Declare d1 binding as interface
-// Key is same as d1_databases.binding on wrangler.toml
-interface Env {
+// Declare d1 binding as the interface
+// On local, the Key is the same as `--d1=<DataBase Bindings>
+// On production, the Key need to set  the same as D1 bindings on the Settings page
   DB: D1Database;
 }
 

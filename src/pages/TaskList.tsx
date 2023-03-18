@@ -1,21 +1,25 @@
 import { Link } from "@raula/router";
 import { Task } from "../components/Task";
 import { PlusIcon } from "@radix-ui/react-icons";
-import { tasks as mockTasks } from "../db/task";
-import { useCallback, useState } from "react";
+import { useCallback } from "react";
 import { useToast } from "../components/Toast";
 import { trpc } from "../utils/trpc";
+import { useQueryClient } from "@tanstack/react-query";
+import { getQueryKey } from "@trpc/react-query"
 
 export const TaskList = (): JSX.Element => {
-  const [tasks, setTasks] = useState<typeof mockTasks>(mockTasks);
+  const queryClient = useQueryClient()
   const { data } = trpc.tasks.list.useQuery()
+  const mutation = trpc.tasks.complete.useMutation()
   const toast = useToast();
   const handleTaskClick = useCallback(
-    (clickTaskId: number) => () => {
-      setTasks(tasks.filter(({ id }) => id !== clickTaskId));
+    (clickTaskId: number) => async () => {
+      await mutation.mutateAsync({ id: clickTaskId })
+      queryClient.invalidateQueries(getQueryKey(trpc.tasks))
+
       toast("Task completed");
     },
-    [tasks, toast]
+    [toast]
   );
   return (
     <main>

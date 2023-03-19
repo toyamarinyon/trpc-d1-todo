@@ -4,7 +4,7 @@ This Todo App is a project demonstrating the creation of an end-to-end type-safe
 
 # Key Features
 
-- Host static content on Cloudflare Pages
+- Host static content built by Vite on Cloudflare Pages
 - Implement serverless functions for API endpoints using Cloudflare Pages Functions
 - Utilize tRPC for type-safe communication between backend and frontend
 - Use Cloudflare D1 as a lightweight, SQLite-based database solution

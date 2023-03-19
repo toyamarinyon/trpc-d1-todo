@@ -2,6 +2,8 @@
 
 This Todo App is a project demonstrating the creation of an end-to-end type-safe web application quickly and cost-effectively by combining tRPC, Cloudflare Pages, Cloudflare Pages Functions, and Cloudflare D1. This repository contains the source code for the application, as well as instructions on how to set up and deploy it.
 
+![demo](./docs/demo.gif)
+
 # Key Features
 
 - Host static content on Cloudflare Pages

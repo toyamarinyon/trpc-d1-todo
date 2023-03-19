@@ -10,6 +10,7 @@ import { trpc } from "../utils/trpc";
 export const NewTaskPage = (): JSX.Element => {
   const toast = useToast();
   const { router } = useRouter();
+  // const createTask = trpc.tasks.create.useMutation()
   const createTask = trpc.tasks.create.useMutation()
   const queryClient = useQueryClient()
   const handleSubmit = useCallback(

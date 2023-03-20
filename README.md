@@ -1,15 +1,16 @@
 # End-to-end type-safe Todo App on Cloudflare
 
-This Todo App is a project demonstrating the creation of an end-to-end type-safe web application quickly and cost-effectively by combining tRPC, Cloudflare Pages, Cloudflare Pages Functions, and Cloudflare D1. This repository contains the source code for the application, as well as instructions on how to set up and deploy it.
+This Todo App is a project demonstrating the creation of an end-to-end type-safe web application quickly and cost-effectively by combining tRPC, Drizzle, Cloudflare Pages, Cloudflare Pages Functions, and Cloudflare D1.
 
-![demo](./docs/demo.gif)
+<img src="./docs/demo.gif" width="400" alt="demo" />
 
 # Key Features
 
-- Host static content built by Vite on Cloudflare Pages
-- Implement serverless functions for API endpoints using Cloudflare Pages Functions
-- Utilize tRPC for type-safe communication between backend and frontend
-- Use Cloudflare D1 as a lightweight, SQLite-based database solution
+- Host static content built by [Vite](https://vitejs.dev/) on Cloudflare Pages
+- Implement serverless functions for API endpoints using [Cloudflare Pages Functions](https://developers.cloudflare.com/pages/platform/functions/)
+- Utilize [tRPC](https://trpc.io/) for type-safe communication between backend and frontend
+- Use [Cloudflare D1](https://developers.cloudflare.com/d1/) as a lightweight, SQLite-based database solution
+- Use [Drizzle](https://github.com/drizzle-team/drizzle-orm) as a ORM and migration generator
 
 # Prerequisites
 
@@ -21,8 +22,8 @@ This Todo App is a project demonstrating the creation of an end-to-end type-safe
 1. Create a repository from this template repository using the GitHub CLI
 
     ```bash
-    gh repo create yapc-kyoto-2023-demo --clone --public --template toyamarinyon/trpc-d1-todo
-    cd yapc-kyoto-2023-demo
+    gh repo create todo-demo --clone --public --template toyamarinyon/trpc-d1-todo
+    cd todo-demo
     ```
 
 1. Instal dependencies
@@ -33,11 +34,19 @@ This Todo App is a project demonstrating the creation of an end-to-end type-safe
 
     > **Note** I prefer pnpm over npm but Cloudflare Pages builds do not yet support pnpm.
 
+1. Expose your database name
+
+    Replace `<DATABASE_NAME>` to your database name. It will be use by following steps.
+
+    ```bash
+    DEMO_DATABASE_NAME=<DATABASE_NAME>
+    ```
+
 1. Create your database
 
     Run the following command and give your database a name:
     ```bash
-    npx wrangler d1 create <DATABASE_NAME>
+    npx wrangler d1 create $DEMO_DATABASE_NAME
     ```
 
 1. Configure database binding with wrangler.toml
@@ -52,41 +61,73 @@ This Todo App is a project demonstrating the creation of an end-to-end type-safe
     database_id = "<UUID>"
     ```
 
-    Set your binding name by updating the <BINDING_NAME> value. Your binding is available in your Cloudflare Pages Functions at env.<BINDING_NAME>. You will find the values for database_name and database_id in your terminal after you run the create command in step 3.
+    Set your binding name by updating the <BINDING_NAME> value. Your binding is available in your Cloudflare Pages Functions at env.<BINDING_NAME>. You will find the values for database_name and database_id in your terminal after you run the create command in step 4.
 
-1. Run a query against your local database
+1. Create table against your local database
 
-    You can create our database with [schema.sql](./schema.sql):
-    ```sql
-    # schema.sql
-    DROP TABLE IF EXISTS tasks;
+    Cloudflare D1 provides migration tools. You can use it to check list of unapplied migrations:
+    ```bash
+    npx wrangler d1 migrations list $DEMO_DATABASE_NAME --local
+    ```
+    Then you can see the following:
+    ```bash
+    ┌────────────────────────────┐
+    │ Name                       │
+    ├────────────────────────────┤
+    │ 0000_dusty_dragon_lord.sql │
+    └────────────────────────────┘
+    ```
+    This migration creates a `tasks` table and inserts three tasks.
+    ```bash
+    $ cat migrations/0000_dusty_dragon_lord.sql
 
     CREATE TABLE tasks (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
-      title TEXT,
-      description TEXT,
-      completion_datetime DATETIME
+            `id` integer PRIMARY KEY NOT NULL,
+            `title` text NOT NULL,
+            `description` text NOT NULL,
+            `completion_at` integer
     );
+
+    INSERT INTO tasks (title, description)
+    VALUES ('Buy milk', 'Buy milk from the store'),
+           ('Buy eggs', 'Buy eggs from the store'),
+           ('Buy bread', 'Buy bread from the store');
     ```
-    Let's create database by running:
+
+    And you can use the following to apply any unapplied migrations:
     ```bash
-    npx wrangler d1 execute <DATABASE_NAME> --local --file=./schema.sql
+    npx wrangler d1 migrations apply $DEMO_DATABASE_NAME --local
     ```
+    
     Then validate your data is in your database by running:
     ```bash
-    npx wrangler d1 execute <DATABASE_NAME> --local --command='SELECT * FROM tasks'
+    npx wrangler d1 execute $DEMO_DATABASE_NAME --local --command='SELECT * FROM tasks'
     ```
+    You'll see the following:
+    ```bash
+    ┌────┬───────────┬──────────────────────────┬───────────────┐
+    │ id │ title     │ description              │ completion_at │
+    ├────┼───────────┼──────────────────────────┼───────────────┤
+    │ 1  │ Buy milk  │ Buy milk from the store  │               │
+    ├────┼───────────┼──────────────────────────┼───────────────┤
+    │ 2  │ Buy eggs  │ Buy eggs from the store  │               │
+    ├────┼───────────┼──────────────────────────┼───────────────┤
+    │ 3  │ Buy bread │ Buy bread from the store │               │
+    └────┴───────────┴──────────────────────────┴───────────────┘
+    ```
+    This completes the creation of the local database. Now let's run the ToDo application locally.
+
 1. Run locally with Wrangler
 
-    While in your project directory, test your database locally by running:
+    To run Cloudflare Pages locally, use the `wrangler pages dev` command; to run Cloudflare D1 as well, add the three options `--local`, `--persist`, and `--d1=<DATABASE_NAME>`.
+
+    Then add `npm run dev` to the end of the command to integrate Cloudflare Pages and Vite's dev server.
 
     ```bash
-    npx wrangler pages dev --local --persist --d1=<DATABASE_NAME> -- npm run dev
+    npx wrangler pages dev --local --persist --d1=$DEMO_DATABASE_NAME -- npm run dev
     ```
 
-    When you run `wrangler pages dev -- npm run dev`, Wrangler will let you run your Pages application locally, which includes pass through `npm run dev` to run vite development server and running your Functions.
-
-    will give you a URL (most likely localhost:8787) to review your Worker.
+    This will then start serving your Pages project. You can press B to open the browser on your local site :tada:
 
 # Deploying to Cloudflare Pages and Cloudflare Pages Functions
 
@@ -103,9 +144,16 @@ This Todo App is a project demonstrating the creation of an end-to-end type-safe
     1. Select **D1 database bindings** > **Add binding** > configure a `DB` variable with a value of `<DATABASE_NAME>`
 
 1. Redeploy the latest deployment to apply the above settings.
-1. Run a query against your D1 database
+1. Migrate the D1 database on Cloudflare
 
-    You've run a query againt your local database on `Getting Started` setion. Let's run the same query against your D1 database:
+    Show unapplied migrations as list:
     ```bash
-    npx wrangler d1 execute <DATABASE_NAME> --file=./schema.sql
+    npx wrangler d1 migrations list $DEMO_DATABASE_NAME
     ```
+
+    Then apply them:
+    ```bash
+    npx wrangler d1 migrations apply $DEMO_DATABASE_NAME
+    ```
+    Open the page, you'll be able to see ToDo App on Cloudflare. 
+

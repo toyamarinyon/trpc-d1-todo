@@ -14,15 +14,15 @@ In this tutorial, demonstrating how to add columns to the table with [Drizzle](h
 1. Open `db/schema/tasks.ts` and add a priority field.
 
    ```ts
-   import { integer, sqliteTable, text } from "drizzle-orm/sqlite-core";
+   import { integer, sqliteTable, text } from 'drizzle-orm/sqlite-core'
 
-   export const tasks = sqliteTable("tasks", {
-     id: integer("id").primaryKey(),
-     title: text("title").notNull(),
-     description: text("description").notNull(),
-     comletionAt: integer("completion_at", { mode: "timestamp" }),
-     priority: text("number").notNull().default("0"), // ← Add this line
-   });
+   export const tasks = sqliteTable('tasks', {
+     id: integer('id').primaryKey(),
+     title: text('title').notNull(),
+     description: text('description').notNull(),
+     comletionAt: integer('completion_at', { mode: 'timestamp' }),
+     priority: text('number').notNull().default('0'), // ← Add this line
+   })
    ```
 
 1. Generate a migration with `Drizzle Kit`
@@ -92,19 +92,19 @@ In this tutorial, demonstrating how to add columns to the table with [Drizzle](h
    <summary>Show code</summary>
 
    ```tsx
-   import { inferAsyncReturnType, initTRPC } from "@trpc/server";
+   import { tasks } from '../../db/schema'
+   import { inferAsyncReturnType, initTRPC } from '@trpc/server'
    import tRPCPagesPluginFunction, {
      FetchCreateContextWithCloudflareEnvFnOptions,
-   } from "cloudflare-pages-plugin-trpc";
-   import { z } from "zod";
-   import { eq } from "drizzle-orm/expressions";
-   import { drizzle } from "drizzle-orm/d1";
-   import { tasks } from "../../db/schema";
+   } from 'cloudflare-pages-plugin-trpc'
+   import { drizzle } from 'drizzle-orm/d1'
+   import { eq } from 'drizzle-orm/expressions'
+   import { z } from 'zod'
 
    // Declare d1 binding as interface
    // Key is same as d1_databases.binding on wrangler.toml
    interface Env {
-     DB: D1Database;
+     DB: D1Database
    }
 
    // Map binding to context of tRPC
@@ -112,13 +112,13 @@ In this tutorial, demonstrating how to add columns to the table with [Drizzle](h
      env,
    }: FetchCreateContextWithCloudflareEnvFnOptions<Env>) => ({
      db: drizzle(env.DB),
-   });
+   })
 
    // Alias context type
-   type Context = inferAsyncReturnType<typeof createContext>;
+   type Context = inferAsyncReturnType<typeof createContext>
 
    // Create a router instance with context
-   const t = initTRPC.context<Context>().create();
+   const t = initTRPC.context<Context>().create()
 
    // Create routing to manage tasks
    // It provides three routes:
@@ -145,7 +145,7 @@ In this tutorial, demonstrating how to add columns to the table with [Drizzle](h
                description: input.description,
                priority: input.priority,
              })
-             .run();
+             .run()
          }),
        // Route to complete a task
        complete: t.procedure
@@ -157,32 +157,32 @@ In this tutorial, demonstrating how to add columns to the table with [Drizzle](h
                comletionAt: new Date(),
              })
              .where(eq(tasks.id, input.id))
-             .run();
+             .run()
            if (!result.success) {
-             throw new Error(result.error);
+             throw new Error(result.error)
            }
          }),
        // Route to retrieve tasks not completed
        list: t.procedure.query(async ({ ctx }) => {
-         const result = await ctx.db.select().from(tasks).all();
-         return { tasks: result };
+         const result = await ctx.db.select().from(tasks).all()
+         return { tasks: result }
        }),
      }),
-   });
+   })
 
    // Expose type alias of appRouter. It uses on the client
-   export type AppRouter = typeof appRouter;
+   export type AppRouter = typeof appRouter
 
    // Expose a request handler to run it on Cloudflare Pages Functions
    // with tRPCPagesPlugin
    export const onRequest: PagesFunction = tRPCPagesPluginFunction({
      router: appRouter,
      createContext,
-     endpoint: "/api/trpc",
+     endpoint: '/api/trpc',
      onError: (error) => {
-       console.log(error);
+       console.log(error)
      },
-   });
+   })
    ```
 
    </details>
@@ -204,37 +204,37 @@ In this tutorial, demonstrating how to add columns to the table with [Drizzle](h
    <summary>Show code</summary>
 
    ```tsx
-   import * as Form from "@radix-ui/react-form";
-   import * as RadioGroup from "@radix-ui/react-radio-group";
-   import { useRouter } from "@raula/router";
-   import { useQueryClient } from "@tanstack/react-query";
-   import { getQueryKey } from "@trpc/react-query";
-   import { FormEvent, useCallback } from "react";
-   import { Loader } from "../components/Loader";
-   import { useToast } from "../components/Toast";
-   import { trpc } from "../utils/trpc";
+   import { Loader } from '../components/Loader'
+   import { useToast } from '../components/Toast'
+   import { trpc } from '../utils/trpc'
+   import * as Form from '@radix-ui/react-form'
+   import * as RadioGroup from '@radix-ui/react-radio-group'
+   import { useRouter } from '@raula/router'
+   import { useQueryClient } from '@tanstack/react-query'
+   import { getQueryKey } from '@trpc/react-query'
+   import { FormEvent, useCallback } from 'react'
 
    export const NewTaskPage = (): JSX.Element => {
-     const toast = useToast();
-     const { router } = useRouter();
-     const createTask = trpc.tasks.create.useMutation();
-     const queryClient = useQueryClient();
+     const toast = useToast()
+     const { router } = useRouter()
+     const createTask = trpc.tasks.create.useMutation()
+     const queryClient = useQueryClient()
      const handleSubmit = useCallback(
        async (event: FormEvent<HTMLFormElement>) => {
-         event.preventDefault();
-         const data = Object.fromEntries(new FormData(event.currentTarget));
+         event.preventDefault()
+         const data = Object.fromEntries(new FormData(event.currentTarget))
          await createTask.mutateAsync({
            title: data.title as string,
            description: data.description as string,
            priority: parseInt(data.priority as string),
-         });
-         await queryClient.invalidateQueries(getQueryKey(trpc.tasks));
+         })
+         await queryClient.invalidateQueries(getQueryKey(trpc.tasks))
 
-         toast("Create successfully!");
-         router.push("/");
+         toast('Create successfully!')
+         router.push('/')
        },
        [router, toast, createTask, queryClient]
-     );
+     )
      return (
        <main>
          <h1 className="text-2xl text-neutral-200 font-bold mb-8">
@@ -344,8 +344,8 @@ In this tutorial, demonstrating how to add columns to the table with [Drizzle](h
            </Form.Submit>
          </Form.Root>
        </main>
-     );
-   };
+     )
+   }
    ```
 
    </details>
@@ -363,13 +363,13 @@ In this tutorial, demonstrating how to add columns to the table with [Drizzle](h
    <summary>Show code</summary>
 
    ```tsx
-   import * as Checkbox from "@radix-ui/react-checkbox";
-   import { CheckIcon } from "@radix-ui/react-icons";
-   import { Task as TaskSchema } from "../../db/schema";
+   import { Task as TaskSchema } from '../../db/schema'
+   import * as Checkbox from '@radix-ui/react-checkbox'
+   import { CheckIcon } from '@radix-ui/react-icons'
 
-   type Props = Pick<TaskSchema, "title" | "description" | "priority"> & {
-     onClick: () => void;
-   };
+   type Props = Pick<TaskSchema, 'title' | 'description' | 'priority'> & {
+     onClick: () => void
+   }
    export const Task = ({
      title,
      description,
@@ -403,8 +403,8 @@ In this tutorial, demonstrating how to add columns to the table with [Drizzle](h
            </ul>
          </div>
        </label>
-     );
-   };
+     )
+   }
    ```
 
    </details>

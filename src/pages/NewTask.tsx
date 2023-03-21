@@ -1,32 +1,32 @@
-import * as Form from "@radix-ui/react-form";
-import { useRouter } from "@raula/router";
-import { useQueryClient } from "@tanstack/react-query";
-import { getQueryKey } from "@trpc/react-query"
-import { FormEvent, useCallback, useState } from "react";
-import { Loader } from "../components/Loader";
-import { useToast } from "../components/Toast";
-import { trpc } from "../utils/trpc";
+import { Loader } from '../components/Loader'
+import { useToast } from '../components/Toast'
+import { trpc } from '../utils/trpc'
+import * as Form from '@radix-ui/react-form'
+import { useRouter } from '@raula/router'
+import { useQueryClient } from '@tanstack/react-query'
+import { getQueryKey } from '@trpc/react-query'
+import { FormEvent, useCallback, useState } from 'react'
 
 export const NewTaskPage = (): JSX.Element => {
-  const toast = useToast();
-  const { router } = useRouter();
+  const toast = useToast()
+  const { router } = useRouter()
   const createTask = trpc.tasks.create.useMutation()
   const queryClient = useQueryClient()
   const handleSubmit = useCallback(
     async (event: FormEvent<HTMLFormElement>) => {
-      event.preventDefault();
-      const data = Object.fromEntries(new FormData(event.currentTarget));
+      event.preventDefault()
+      const data = Object.fromEntries(new FormData(event.currentTarget))
       await createTask.mutateAsync({
         title: data.title as string,
-        description: data.description as string
+        description: data.description as string,
       })
       await queryClient.invalidateQueries(getQueryKey(trpc.tasks))
 
-      toast("Create successfully!");
-      router.push("/");
+      toast('Create successfully!')
+      router.push('/')
     },
     [router, toast]
-  );
+  )
   return (
     <main>
       <h1 className="text-2xl text-neutral-200 font-bold mb-8">
@@ -85,5 +85,5 @@ export const NewTaskPage = (): JSX.Element => {
         </Form.Submit>
       </Form.Root>
     </main>
-  );
-};
+  )
+}

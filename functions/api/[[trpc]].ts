@@ -3,6 +3,9 @@ import tRPCPagesPluginFunction, {
   FetchCreateContextWithCloudflareEnvFnOptions,
 } from "cloudflare-pages-plugin-trpc";
 import { z } from "zod";
+import { eq } from "drizzle-orm/expressions"
+import { drizzle } from "drizzle-orm/d1"
+import { tasks } from "../../db/schema";
 
 // Declare d1 binding as interface
 // Key is same as d1_databases.binding on wrangler.toml
@@ -14,7 +17,7 @@ interface Env {
 const createContext = async ({
   env,
 }: FetchCreateContextWithCloudflareEnvFnOptions<Env>) => ({
-  db: env.DB,
+  db: drizzle(env.DB),
 });
 
 // Alias context type
@@ -40,21 +43,18 @@ const appRouter = t.router({
         })
       )
       .mutation(async ({ input, ctx }) => {
-        const result = await ctx.db
-          .prepare("INSERT INTO tasks (title, description) VALUES (?, ?)")
-          .bind(input.title, input.description)
-          .run();
-        if (!result.success) {
-          throw new Error(result.error);
-        }
+        await ctx.db.insert(tasks).values({
+          title: input.title,
+          description: input.description
+        }).run()
       }),
     // Route to complete a task
     complete: t.procedure
       .input(z.object({ id: z.number() }))
       .mutation(async ({ input, ctx }) => {
-        const result = await ctx.db
-          .prepare("UPDATE tasks SET completion_datetime = ? WHERE id = ?")
-          .bind(new Date().valueOf(), input.id)
+        const result = await ctx.db.update(tasks).set({
+          comletionAt: new Date()
+        }).where(eq(tasks.id, input.id))
           .run();
         if (!result.success) {
           throw new Error(result.error);
@@ -62,10 +62,8 @@ const appRouter = t.router({
       }),
     // Route to retrieve tasks not completed
     list: t.procedure.query(async ({ ctx }) => {
-      const result = await ctx.db
-        .prepare("SELECT * FROM tasks WHERE completion_datetime IS NULL")
-        .all<{ id: number, title: string; description: string }>();
-      return { tasks: result.results };
+      const result = await ctx.db.select().from(tasks).all()
+      return { tasks: result };
     }),
   }),
 });
@@ -79,4 +77,7 @@ export const onRequest: PagesFunction = tRPCPagesPluginFunction({
   router: appRouter,
   createContext,
   endpoint: "/api/trpc",
+  onError: (error) => {
+    console.log(error)
+  }
 });

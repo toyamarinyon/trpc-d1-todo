@@ -2,7 +2,7 @@
 
 This Todo App is a project demonstrating the creation of an end-to-end type-safe web application quickly and cost-effectively by combining tRPC, Drizzle, Cloudflare Pages, Cloudflare Pages Functions, and Cloudflare D1.
 
-<img src="./docs/demo.gif" width="400" alt="demo" />
+<img src="./docs/assets/demo.gif" width="400" alt="demo" />
 
 # Key Features
 
@@ -171,3 +171,9 @@ This Todo App is a project demonstrating the creation of an end-to-end type-safe
    ```
 
    Open the page, you'll be able to see ToDo App on Cloudflare.
+
+# Next
+
+- [Tutorial on changing table schema](./docs/tutorial-on-changing-table-schema.md)
+
+  Demonstrating how to add columns to the table with [Drizzle](https://github.com/drizzle-team/drizzle-orm).

@@ -1,4 +1,4 @@
-# Modify table schema
+# Tutorial on changing table schema
 
 The [tasks](../db//schema/tasks.ts) table has the following four columns
 

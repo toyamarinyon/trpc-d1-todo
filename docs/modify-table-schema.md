@@ -39,7 +39,7 @@ In this tutorial, demonstrating how to add columns to the table with [Drizzle](h
 
    After running the command, you should see the following:
 
-   <img src="./drizzle-kit.png" width="500" />
+   <img src="./assets/drizzle-kit.png" width="500" />
 
    And migration file is the following:
 
@@ -193,9 +193,9 @@ In this tutorial, demonstrating how to add columns to the table with [Drizzle](h
 
    Currently, the task registration form has a title and description field. Add a priority field and set its value to the payload of mutation.
 
-   | Current                              | After                             |
-   | ------------------------------------ | --------------------------------- |
-   | <img src="./with-no-priority.png" /> | <img src="./with-priority.png" /> |
+   | Current                                     | After                                    |
+   | ------------------------------------------- | ---------------------------------------- |
+   | <img src="./assets/with-no-priority.png" /> | <img src="./assets/with-priority.png" /> |
 
    Copy the following code, open `src/pages/NewTask.tsx`, and paste it.
 
@@ -352,9 +352,9 @@ In this tutorial, demonstrating how to add columns to the table with [Drizzle](h
 
    ## Show the icon on a high-priority task
 
-   | Current                                   | After                                  |
-   | ----------------------------------------- | -------------------------------------- |
-   | <img src="./with-no-priority-task.png" /> | <img src="./with-priority-task.png" /> |
+   | Current                                          | After                                         |
+   | ------------------------------------------------ | --------------------------------------------- |
+   | <img src="./assets/with-no-priority-task.png" /> | <img src="./assets/with-priority-task.png" /> |
 
    Copy the following code, open `src/components/Task.tsx` and paste it.
 
@@ -419,7 +419,7 @@ npx wrangler pages dev --local --persist --d1=<DATABASE_BINDING> -- npm run dev
 
 Once you open your browser, you should be able to create a task with priority:
 
-<img src="./local.gif" width="500" />
+<img src="./assets/local.gif" width="500" />
 
 ## Deploy to Cloudflare Pages
 
@@ -490,7 +490,7 @@ export const tasks = sqliteTable('tasks', {
 >
 > Now, a TypeScript error appears:
 >
-> <img src="./drizzle-typo.png" width="400" />
+> <img src="./assets/drizzle-typo.png" width="400" />
 >
 > It's the power of Drizzle! We could find an error before deploy. Let's fix it.
  -->

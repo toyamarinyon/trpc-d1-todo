@@ -1,10 +1,10 @@
-import * as Checkbox from "@radix-ui/react-checkbox";
-import { CheckIcon } from "@radix-ui/react-icons";
+import * as Checkbox from '@radix-ui/react-checkbox'
+import { CheckIcon } from '@radix-ui/react-icons'
 
 interface Props {
-  title: string;
-  description: string;
-  onClick: () => void;
+  title: string
+  description: string
+  onClick: () => void
 }
 export const Task = ({ title, description, onClick }: Props): JSX.Element => {
   return (
@@ -23,5 +23,5 @@ export const Task = ({ title, description, onClick }: Props): JSX.Element => {
         <p className="text-sm text-whiteA11">{description}</p>
       </div>
     </label>
-  );
-};
+  )
+}

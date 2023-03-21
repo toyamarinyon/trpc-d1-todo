@@ -1,18 +1,18 @@
-import * as Toast from "@radix-ui/react-toast";
-import { createContext, ReactNode, useState } from "react";
+import * as Toast from '@radix-ui/react-toast'
+import { createContext, ReactNode, useState } from 'react'
 
 interface Toast {
-  toasts: Map<string, { title: string }>;
-  setToasts: (toasts: Map<string, { title: string }>) => void;
+  toasts: Map<string, { title: string }>
+  setToasts: (toasts: Map<string, { title: string }>) => void
 }
-export const ToastContext = createContext<Toast>({} as Toast);
+export const ToastContext = createContext<Toast>({} as Toast)
 
 export const ToastProvider = ({
   children,
 }: {
-  children: ReactNode;
+  children: ReactNode
 }): JSX.Element => {
-  const [toasts, setToasts] = useState(new Map<string, { title: string }>());
+  const [toasts, setToasts] = useState(new Map<string, { title: string }>())
   return (
     <ToastContext.Provider value={{ toasts, setToasts }}>
       <Toast.Provider>
@@ -33,5 +33,5 @@ export const ToastProvider = ({
         <Toast.Viewport className="[--viewport-padding:_25px] fixed bottom-0 left-1/2 -translate-x-1/2 flex flex-col p-[var(--viewport-padding)] gap-[10px] w-[390px] max-w-[100vw] m-0 list-none z-[2147483647] outline-none" />
       </Toast.Provider>
     </ToastContext.Provider>
-  );
-};
+  )
+}

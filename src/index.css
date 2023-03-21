@@ -3,5 +3,5 @@
 @tailwind utilities;
 
 body {
-  @apply bg-mauve12
+  @apply bg-mauve12;
 }

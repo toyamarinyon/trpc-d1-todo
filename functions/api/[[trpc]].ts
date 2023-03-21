@@ -53,7 +53,7 @@ const appRouter = t.router({
       .input(z.object({ id: z.number() }))
       .mutation(async ({ input, ctx }) => {
         const result = await ctx.db.update(tasks).set({
-          comletionAt: new Date()
+          completionAt: new Date()
         }).where(eq(tasks.id, input.id))
           .run();
         if (!result.success) {

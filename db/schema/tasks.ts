@@ -4,6 +4,6 @@ export const tasks = sqliteTable('tasks', {
   id: integer('id').primaryKey(),
   title: text('title').notNull(),
   description: text('description').notNull(),
-  comletionAt: integer('completion_at', { mode: 'timestamp' }),
+  completionAt: integer('completion_at', { mode: 'timestamp' }),
   label: text('label'),
 });
